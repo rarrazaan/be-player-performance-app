@@ -1,0 +1,18 @@
+version: '3.9'
+
+services:
+  db:
+    image: postgres:15.5
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=viska_db
+    ports:
+      - "5432:5432"
+    restart: always
+    volumes:
+      - viska-data:/var/lib/postgresql/data
+
+volumes:
+  viska-data:
+    driver: local

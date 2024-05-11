@@ -1,0 +1,4 @@
+development:
+  dialect: postgres
+  datasource: host=localhost port=5432 dbname=viska_db user=postgres password=password sslmode=disable
+  dir: migration

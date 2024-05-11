@@ -1,0 +1,9 @@
+.idea
+.vscode
+*/.idea/
+
+dev.env
+*.env
+.env
+*/dev.env
+*/.env
