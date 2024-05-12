@@ -1,3 +1,5 @@
 package constant
 
-const ()
+const (
+	AccessTokenCookieName = "access_token"
+)

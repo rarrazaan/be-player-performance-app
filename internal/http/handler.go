@@ -7,6 +7,7 @@ import (
 )
 
 type Handler struct {
+	AuthHandler *authHandler
 }
 
 func NewHandler(
@@ -14,5 +15,7 @@ func NewHandler(
 	cfg config.Config,
 	validator *validator.Validate,
 ) *Handler {
-	return &Handler{}
+	return &Handler{
+		AuthHandler: NewAuthHandler(service.AuthService, cfg),
+	}
 }
