@@ -10,6 +10,8 @@ import (
 	"syscall"
 	"time"
 
+	_ "github.com/rarrazaan/be-player-performance-app/docs"
+
 	restserver "github.com/rarrazaan/be-player-performance-app/cmd"
 	"github.com/rarrazaan/be-player-performance-app/internal/config"
 	"github.com/rarrazaan/be-player-performance-app/internal/dependency"
@@ -19,6 +21,13 @@ var (
 	shutdownTimeout = 5 * time.Second
 )
 
+// @title						BE-Viska Recruitment-Imam Rafiif A
+// @version					1.0
+// @description				This is what this is
+// @contact.name				Imam Rafiif Arrazaan
+// @contact.email				karrazaan@gmail.com
+// @host						localhost:8080
+// @securityDefinitions.basic	ApiToken
 func main() {
 	runtime.GOMAXPROCS(runtime.NumCPU())
 

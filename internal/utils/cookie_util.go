@@ -13,7 +13,7 @@ func SetCookieAfterLogin(c *gin.Context, config config.Config, accessToken strin
 
 	if config.ServiceHost == "localhost" {
 		c.SetSameSite(http.SameSiteStrictMode)
-		c.SetCookie(constant.AccessTokenCookieName, accessToken, accessTokenCookieExp, "/", config.ServiceHost, false, true)
+		c.SetCookie(constant.AccessTokenCookieName, accessToken, accessTokenCookieExp, "/", config.ServiceHost, true, true)
 		return
 	}
 
