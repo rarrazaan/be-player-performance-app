@@ -4,14 +4,32 @@ services:
   db:
     image: postgres:15.5
     environment:
-      - POSTGRES_USER=postgres
+      - POSTGRES_USER=viska
       - POSTGRES_PASSWORD=password
       - POSTGRES_DB=viska_db
     ports:
       - "5432:5432"
     restart: always
     volumes:
+      - ./migration:/docker-entrypoint-initdb.d
       - viska-data:/var/lib/postgresql/data
+  be:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    environment:
+      - DB_HOST=db
+      - DB_NAME=viska_db
+      - DB_PORT=5432
+      - DB_USER=viska
+      - DB_PASSWORD=password
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    restart: always
 
 volumes:
   viska-data:

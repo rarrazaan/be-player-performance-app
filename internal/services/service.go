@@ -6,7 +6,8 @@ import (
 )
 
 type Service struct {
-	AuthService IAuthService
+	AuthService                IAuthService
+	IdentityPerformanceService IIdentityPerformanceService
 }
 
 func NewService(
@@ -14,6 +15,7 @@ func NewService(
 	jwt utils.IJWT,
 ) *Service {
 	return &Service{
-		AuthService: NewAuthservice(repository.MonoRepository, jwt),
+		AuthService:                NewAuthservice(repository.MonoRepository, jwt),
+		IdentityPerformanceService: NewIdentityPerformanceService(repository.MonoRepository),
 	}
 }

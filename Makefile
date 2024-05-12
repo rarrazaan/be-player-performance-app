@@ -15,3 +15,6 @@ compose-up:
 
 compose-down:
 	@docker-compose down
+
+docs:
+	swag fmt && swag init

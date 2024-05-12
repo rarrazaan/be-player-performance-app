@@ -36,8 +36,8 @@ func (s *authService) LoginWithGoogle(ctx context.Context, googleUser *dto.Googl
 	}
 	if user == nil {
 		newUser := &model.User{
-			Name:  email,
-			Email: email,
+			Username: email,
+			Email:    email,
 		}
 
 		if _, err = s.mr.CreateUser(ctx, newUser); err != nil {
@@ -51,7 +51,7 @@ func (s *authService) LoginWithGoogle(ctx context.Context, googleUser *dto.Googl
 
 	accessTokenSignPayload := utils.SignAccessTokenPayload{
 		UserID:    user.ID,
-		UserName:  user.Name,
+		UserName:  user.Username,
 		UserEmail: user.Email,
 	}
 	accessToken, err := s.jwt.GenerateAccessToken(accessTokenSignPayload)

@@ -14,6 +14,9 @@ var (
 	// JWT
 	ErrAccessTokenExpired = NewCustomError(Unauthorized, "Token has already expired")
 	ErrInvalidToken       = NewCustomError(Unauthorized, "Token is invalid")
+
+	// User
+	ErrRecordNotFound  = NewCustomError(BadRequest, "error invalid auth header")
 )
 
 func GenerateErrQueryParamRequired(param string) *CustomError {

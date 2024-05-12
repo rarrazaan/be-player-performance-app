@@ -7,7 +7,8 @@ import (
 )
 
 type Handler struct {
-	AuthHandler *authHandler
+	AuthHandler                *authHandler
+	IdentityPerformanceHandler *identityPerformanceHandler
 }
 
 func NewHandler(
@@ -16,6 +17,7 @@ func NewHandler(
 	validator *validator.Validate,
 ) *Handler {
 	return &Handler{
-		AuthHandler: NewAuthHandler(service.AuthService, cfg),
+		AuthHandler:                NewAuthHandler(service.AuthService, cfg),
+		IdentityPerformanceHandler: NewIdentityPerformanceHandler(service.IdentityPerformanceService, validator),
 	}
 }

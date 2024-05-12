@@ -10,6 +10,7 @@ import (
 
 type IMonoRepository interface {
 	FindUserByEmail(ctx context.Context, email string) (*model.User, error)
+	FindUserByFirstName(ctx context.Context, firstName string) ([]model.UserDetail, error)
 	CreateUser(ctx context.Context, user *model.User) (*model.User, error)
 }
 type monoRepository struct {
@@ -34,6 +35,15 @@ func (r *monoRepository) FindUserByEmail(ctx context.Context, email string) (*mo
 		return nil, err
 	}
 	return user, nil
+}
+
+func (r *monoRepository) FindUserByFirstName(ctx context.Context, firstName string) ([]model.UserDetail, error) {
+	users := make([]model.UserDetail, 0)
+	if err := r.db.WithContext(ctx).Where("full_name ilike ?", firstName+"%").Find(&users).Error; err != nil {
+		r.logger.Error("MonoRepository.FindUserByEmail: " + err.Error())
+		return nil, err
+	}
+	return users, nil
 }
 
 func (r *monoRepository) CreateUser(ctx context.Context, user *model.User) (*model.User, error) {
