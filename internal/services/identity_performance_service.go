@@ -12,7 +12,7 @@ import (
 
 type IIdentityPerformanceService interface {
 	CalculatePerformance(ctx context.Context, performance *dto.PerformanceRequest) *dto.PerformanceResponse
-	Identity(ctx context.Context, performance *dto.IdentityRequest) ([]dto.IdentityResponse, error)
+	Identity(ctx context.Context, user *dto.IdentityRequest) ([]dto.IdentityResponse, error)
 }
 
 func NewIdentityPerformanceService(mr repository.IMonoRepository) IIdentityPerformanceService {
@@ -69,8 +69,8 @@ func (s *identityPerformanceService) CalculatePerformance(ctx context.Context, p
 	return res
 }
 
-func (s *identityPerformanceService) Identity(ctx context.Context, performance *dto.IdentityRequest) ([]dto.IdentityResponse, error) {
-	users, err := s.mr.FindUserByFirstName(ctx, performance.Name)
+func (s *identityPerformanceService) Identity(ctx context.Context, user *dto.IdentityRequest) ([]dto.IdentityResponse, error) {
+	users, err := s.mr.FindUserByFirstName(ctx, user.Name)
 	if err != nil {
 		return nil, err
 	}
