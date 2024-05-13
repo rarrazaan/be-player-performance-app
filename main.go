@@ -23,7 +23,7 @@ var (
 
 // @title						BE-Viska Recruitment-Imam Rafiif A
 // @version					1.0
-// @description				This is what this is
+// @description				A backend API with three main features: login with Google, get identity, and calculate performance. This project is for technical assesment for BE Developer at PT. VISKA
 // @contact.name				Imam Rafiif Arrazaan
 // @contact.email				karrazaan@gmail.com
 // @host						localhost:8080
