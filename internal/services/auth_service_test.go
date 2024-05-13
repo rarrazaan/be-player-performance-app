@@ -2,49 +2,170 @@ package service
 
 import (
 	"context"
-	"reflect"
+	"errors"
 	"testing"
 
-	"github.com/rarrazaan/be-player-performance-app/internal/config"
 	"github.com/rarrazaan/be-player-performance-app/internal/dto"
-	"github.com/rarrazaan/be-player-performance-app/internal/repository"
-	"github.com/rarrazaan/be-player-performance-app/internal/utils"
+	"github.com/rarrazaan/be-player-performance-app/internal/model"
+	"github.com/rarrazaan/be-player-performance-app/mocks"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 )
 
+var (
+	mockMonoRepo *mocks.IMonoRepository
+	mockJWT      *mocks.IJWT
+	u            IAuthService
+)
+
+func Setup() {
+	mockMonoRepo = new(mocks.IMonoRepository)
+	mockJWT = new(mocks.IJWT)
+	u = NewAuthservice(mockMonoRepo, mockJWT)
+}
 func Test_authService_LoginWithGoogle(t *testing.T) {
-	type fields struct {
-		mr  repository.IMonoRepository
-		cfg config.Config
-		jwt utils.IJWT
-	}
-	type args struct {
-		ctx        context.Context
-		googleUser *dto.GoogleResponse
-	}
-	tests := []struct {
-		name    string
-		fields  fields
-		args    args
-		want    *dto.LoginResponsePayload
-		wantErr bool
-	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			s := &authService{
-				mr:  tt.fields.mr,
-				cfg: tt.fields.cfg,
-				jwt: tt.fields.jwt,
-			}
-			got, err := s.LoginWithGoogle(tt.args.ctx, tt.args.googleUser)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("authService.LoginWithGoogle() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("authService.LoginWithGoogle() = %v, want %v", got, tt.want)
-			}
-		})
-	}
+	assert := assert.New(t)
+	t.Run("should return correct user when email does exist", func(t *testing.T) {
+		Setup()
+		email := "test@gmail.com"
+		user := &model.User{
+			ID:    "",
+			Email: email,
+		}
+
+		token := "token"
+		mockMonoRepo.On("FindUserByEmail", mock.Anything, email).Return(user, nil)
+		mockJWT.On("GenerateAccessToken", mock.Anything).Return(&token, nil)
+		req := &dto.GoogleResponse{
+			ID:            "",
+			Email:         email,
+			VerifiedEmail: true,
+			Picture:       "",
+		}
+		res, err := u.LoginWithGoogle(context.Background(), req)
+		expectedRes := &dto.LoginResponsePayload{
+			AccessToken: "token",
+		}
+
+		assert.Equal(res, expectedRes)
+		assert.Nil(err)
+	})
+
+	t.Run("should return user when email does not exist program will create it", func(t *testing.T) {
+		Setup()
+		email := "test@gmail.com"
+		user := &model.User{
+			ID:       "",
+			Username: email,
+			Email:    email,
+		}
+
+		token := "token"
+		mockMonoRepo.On("FindUserByEmail", mock.Anything, email).Return(nil, nil).Once()
+		mockMonoRepo.On("CreateUser", mock.Anything, user).Return(user, nil)
+		mockMonoRepo.On("FindUserByEmail", mock.Anything, email).Return(user, nil).Once()
+		mockJWT.On("GenerateAccessToken", mock.Anything).Return(&token, nil)
+
+		req := &dto.GoogleResponse{
+			ID:            "",
+			Email:         email,
+			VerifiedEmail: true,
+			Picture:       "",
+		}
+		res, err := u.LoginWithGoogle(context.Background(), req)
+		expectedRes := &dto.LoginResponsePayload{
+			AccessToken: "token",
+		}
+
+		assert.Equal(res, expectedRes)
+		assert.Nil(err)
+	})
+
+	t.Run("should return error when error happen beacuse of repository", func(t *testing.T) {
+		Setup()
+		email := "test@gmail.com"
+
+		mockMonoRepo.On("FindUserByEmail", mock.Anything, email).Return(nil, errors.New("error happen"))
+		req := &dto.GoogleResponse{
+			ID:            "",
+			Email:         email,
+			VerifiedEmail: true,
+			Picture:       "",
+		}
+		res, err := u.LoginWithGoogle(context.Background(), req)
+
+		assert.NotNil(err)
+		assert.Nil(res)
+	})
+
+	t.Run("should return error when error happen beacuse of repository (CreateUser)", func(t *testing.T) {
+		Setup()
+		email := "test@gmail.com"
+		user := &model.User{
+			ID:       "",
+			Username: email,
+			Email:    email,
+		}
+
+		mockMonoRepo.On("FindUserByEmail", mock.Anything, email).Return(nil, nil).Once()
+		mockMonoRepo.On("CreateUser", mock.Anything, user).Return(nil, errors.New("error happen"))
+
+		req := &dto.GoogleResponse{
+			ID:            "",
+			Email:         email,
+			VerifiedEmail: true,
+			Picture:       "",
+		}
+		res, err := u.LoginWithGoogle(context.Background(), req)
+
+		assert.NotNil(err)
+		assert.Nil(res)
+	})
+
+	t.Run("should return error when error happen beacuse of repository (second FindUserByEmail)", func(t *testing.T) {
+		Setup()
+		email := "test@gmail.com"
+		user := &model.User{
+			ID:       "",
+			Username: email,
+			Email:    email,
+		}
+
+		mockMonoRepo.On("FindUserByEmail", mock.Anything, email).Return(nil, nil).Once()
+		mockMonoRepo.On("CreateUser", mock.Anything, user).Return(user, nil)
+		mockMonoRepo.On("FindUserByEmail", mock.Anything, email).Return(nil, errors.New("error happen")).Once()
+
+		req := &dto.GoogleResponse{
+			ID:            "",
+			Email:         email,
+			VerifiedEmail: true,
+			Picture:       "",
+		}
+		res, err := u.LoginWithGoogle(context.Background(), req)
+
+		assert.NotNil(err)
+		assert.Nil(res)
+	})
+
+	t.Run("should return error when failed to generate JWT", func(t *testing.T) {
+		Setup()
+		email := "test@gmail.com"
+		user := &model.User{
+			ID:    "",
+			Email: email,
+		}
+
+		mockMonoRepo.On("FindUserByEmail", mock.Anything, email).Return(user, nil)
+		mockJWT.On("GenerateAccessToken", mock.Anything).Return(nil, errors.New("error happen"))
+		req := &dto.GoogleResponse{
+			ID:            "",
+			Email:         email,
+			VerifiedEmail: true,
+			Picture:       "",
+		}
+		res, err := u.LoginWithGoogle(context.Background(), req)
+
+		assert.NotNil(err)
+		assert.Nil(res)
+	})
 }
